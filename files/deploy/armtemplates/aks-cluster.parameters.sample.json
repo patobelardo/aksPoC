@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "aksServicePrincipalAppId": {
+            "value": "PrincipalAppID"
+        },
+        "aksServicePrincipalClientSecret": {
+            "value": "PrincipalSecret"
+        },
+        "linuxAdminUsername": {
+            "value": "adminUser"
+        },
+        "sshRSAPublicKey": {
+            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0fSFbuNlXsteei4H/y202q0Ais7bPDNf8Mqdx3sLtsPPm7otGLN07BLGnqgI8LpXEHj8LTjSw3CZbozkILV/whKfCsgbAUXKBosG0UtZdzWRuk2gsSFWKkm4OfsdrFXcm92BQKJHGMcTef9jjSds82EpLXX27T/BzXVDVDD5lZS06EB1cCNdWOaqWWQ7dQv6j2n997byTKC+pcEjpqIVrc05A11ziRjvYa2dAMlhRbfwL4ONNCp5wdwHCJovbCl8DCOOSHVf4bJCeq7ae+JFxQWCeP7VFUDAyN0+y7vZIphCFVGsGySfOtaYEoLDl0N7rzzKJPedLnZsHFIuIYGjH"
+        },
+        "adminUsernameWin": {
+            "value": "adminUser"
+        },
+        "adminPasswordWin": {
+            "value": "Pa$$w0rd!"
+        },
+        "aksDnsPrefix": {
+            "value": "test-AKS"
+        },
+        "aksAgentOsDiskSizeGB": {
+            "value": 40
+        },
+        "aksAgentCountLinux": {
+            "value": 2
+        },
+        "aksAgentCountWindows": {
+            "value": 2
+        },        
+        "aksAgentVMSize": {
+            "value": "Standard_D3_v2"
+        },
+        "kubernetesVersion": {
+            "value": "1.15.7"
+        },
+        "aksServiceCIDR": {
+            "value": "10.112.28.96/27"
+        },
+        "aksDnsServiceIP": {
+            "value": "10.112.28.106"
+        },
+        "aksDockerBridgeCIDR": {
+            "value": "10.10.10.1/16"
+        },
+        "aksEnableRBAC": {
+            "value": true
+        },
+        "existingVirtualNetworkName": {
+            "value": "cluster-vnet"
+        },
+        "existingVirtualNetworkResourceGroup": {
+            "value": "[resourceGroup().name]"
+        },
+        "windowsPoolSubnetName": {
+            "value": "aks-windows"
+        },
+        "linuxPoolSubnetName": {
+            "value": "aks-linux"
+        },
+        "aksClusterName": {
+            "value": "aks-cluster"
+        },
+        "networkPlugin": {
+            "value": "azure"
+        },
+        "windowsPool": {
+            "value": true
+        },
+        "useScaleSets": {
+            "value": true
+        },
+        "autoScale": {
+            "value": false
+        },
+        "vmssMaxInstances": {
+            "value": 50
+        }
+    }
+  }

@@ -1,0 +1,94 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetName": {
+        "type": "string",
+        "defaultValue": "cluster-vnet",
+        "metadata": {
+          "description": "VNet name"
+        }
+      },
+      "vnetAddressPrefix": {
+        "type": "string",
+        "defaultValue": "172.16.0.0/17",
+        "metadata": {
+          "description": "Address prefix"
+        }
+      },
+      "subnet1Cidr": {
+        "type": "string",
+        "defaultValue": "172.16.0.0/20",
+        "metadata": {
+          "description": "Linux Cidr"
+        }
+      },
+      "subnet1Name": {
+        "type": "string",
+        "defaultValue": "aks-linux",
+        "metadata": {
+          "description": "Linux Subnet Name"
+        }
+      },
+      "subnet2Cidr": {
+        "type": "string",
+        "defaultValue": "172.16.32.0/20",
+        "metadata": {
+          "description": "Windows Cidr"
+        }
+      },
+      "subnet2Name": {
+        "type": "string",
+        "defaultValue": "aks-windows",
+        "metadata": {
+          "description": "Windows Subnet Name"
+        }
+      },
+      "windowsPool": {
+          "defaultValue": true,
+          "type": "bool"
+      }
+    },
+    "variables": {
+      "subnetsBoth": [
+                    {
+                        "name": "[parameters('subnet1Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet1Cidr')]"
+                        }
+                    },
+                    {
+                        "name": "[parameters('subnet2Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet2Cidr')]"
+                        }
+                    }
+                ],
+      "subnetOnlyLinux":  [
+                    {
+                        "name": "[parameters('subnet1Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet1Cidr')]"
+                        }
+                    }
+                ]
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2017-10-01",
+            "name": "[parameters('vnetName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                },
+                "subnets": "[if(parameters('windowsPool'), variables('subnetsBoth'), variables('subnetOnlyLinux'))]"
+            },
+            "resources": []
+        }
+    ]
+}
