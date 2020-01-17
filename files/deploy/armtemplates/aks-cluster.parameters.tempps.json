@@ -3,10 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "aksServicePrincipalAppId": {
-            "value": "PrincipalAppID"
+            "value": "372092b2-5e07-4090-ab2a-01262c699dfe"
         },
         "aksServicePrincipalClientSecret": {
-            "value": "PrincipalSecret"
+            "value": "65f597ac-b744-4ac4-8947-8201d1f1f9b3"
         },
         "linuxAdminUsername": {
             "value": "adminUser"
@@ -27,10 +27,10 @@
             "value": 40
         },
         "aksAgentCountLinux": {
-            "value": 2
+            "value": 1
         },
         "aksAgentCountWindows": {
-            "value": 2
+            "value": 1
         },        
         "aksAgentVMSize": {
             "value": "Standard_D3_v2"
@@ -54,7 +54,7 @@
             "value": "cluster-vnet"
         },
         "existingVirtualNetworkResourceGroup": {
-            "value": ""
+            "value": "aksPPP1"
         },
         "windowsPoolSubnetName": {
             "value": "aks-windows"
@@ -71,8 +71,11 @@
         "windowsPool": {
             "value": true
         },
+        "useScaleSets": {
+            "value": true
+        },
         "vmssMaxInstances": {
-            "value": 3
+            "value": 2
         }
     }
   }
