@@ -47,6 +47,13 @@
       "windowsPool": {
           "defaultValue": true,
           "type": "bool"
+      },
+      "aksServicePrincipalObjectId": {
+        "type": "string",
+        "defaultValue": "",
+        "metadata": {
+            "description": "appId of the service principal. Used by AKS to manage AKS related resources on Azure like vms, subnets."
+        }
       }
     },
     "variables": {
@@ -71,8 +78,10 @@
                             "addressPrefix": "[parameters('subnet1Cidr')]"
                         }
                     }
-                ]
-    },
+                ],
+                "NetworkContributorRole": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                "RoleAssignmentName": "[concat(parameters('vnetName'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id), variables('NetworkContributorRole')))]"
+              },
     "resources": [
         {
             "type": "Microsoft.Network/virtualNetworks",
@@ -89,6 +98,18 @@
                 "subnets": "[if(parameters('windowsPool'), variables('subnetsBoth'), variables('subnetOnlyLinux'))]"
             },
             "resources": []
+        },
+        {
+          "type": "Microsoft.Network/virtualNetworks/providers/roleAssignments",
+          "apiVersion": "2017-05-01",
+          "name": "[variables('RoleAssignmentName')]",
+          "dependsOn": [
+              "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+          ],
+          "properties": {
+              "roleDefinitionId": "[variables('NetworkContributorRole')]",
+              "principalId": "[parameters('aksServicePrincipalObjectId')]"
+          }
         }
-    ]
+  ]
 }

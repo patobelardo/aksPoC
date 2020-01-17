@@ -71,9 +71,6 @@
         "windowsPool": {
             "value": true
         },
-        "useScaleSets": {
-            "value": true
-        },
         "vmssMaxInstances": {
             "value": 3
         }
