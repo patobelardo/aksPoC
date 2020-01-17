@@ -74,11 +74,8 @@
         "useScaleSets": {
             "value": true
         },
-        "autoScale": {
-            "value": false
-        },
         "vmssMaxInstances": {
-            "value": 50
+            "value": 3
         }
     }
   }

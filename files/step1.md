@@ -6,11 +6,11 @@ For this deployment, we created an 2 templates:
 - vnet.json
 - aks-cluster.json
 
-### vnet.json
+### [vnet.json](deploy/armtemplates/vnet.json)
 
 This template includes 2 subnets and parameters to define the address space of each, and also the subnet names
 
-### aks-cluster.json
+### [aks-cluster.json](deploy/armtemplates/aks-cluster.json)
 
 This template includes the following characteristics (as parameters):
 

@@ -246,10 +246,6 @@
             "defaultValue": true,
             "type": "bool"
         },
-        "autoScale": {
-            "defaultValue": false,
-            "type": "bool"
-        },
         "vmssMaxInstances": {
             "defaultValue": 50,
             "type": "int"
@@ -274,7 +270,6 @@
             "agentVmSize": "[parameters('aksAgentVMSize')]",
             "osType": "Linux",
             "vnetSubnetId": "[variables('linuxVnetSubnetId')]",
-            "enableAutoScaling": "[parameters('autoScale')]",
             "minCount": "[parameters('aksAgentCountLinux')]",
             "maxCount": "[parameters('vmssMaxInstances')]"
         },
@@ -315,7 +310,7 @@
                         "type": "[if(parameters('useScaleSets'), 'VirtualMachineScaleSets', 'AvailabilitySet')]",
                         "vnetSubnetID": "[variables('agentPoolProfilesLinux').vnetSubnetId]",
                         "orchestratorVersion": "[parameters('kubernetesVersion')]",
-                        "enableAutoScaling": "[variables('agentPoolProfilesLinux').enableAutoScaling]",
+                        "enableAutoScaling": true,
                         "minCount": "[variables('agentPoolProfilesLinux').minCount]",
                         "maxCount": "[variables('agentPoolProfilesLinux').maxCount]"
                     }

@@ -2,7 +2,7 @@
 
 Features to include
 
-Week 1
+[Step 1](files/step1.md)
 
 - Deployment
   - ARM Template
@@ -19,7 +19,7 @@ Week 1
   - Persistent storage for AKS and pods
   - Windows containers within the same cluster	 
 
-Week 2
+[Step 2](files/step2.md)
 
   - Setting  RBAC roles with AAD (k8 roles binding with aad groups)		
   - Network Policies for namespaces
@@ -29,7 +29,7 @@ Week 2
 - Integrating ACR with AKS
   - Deploying images stored in azure container registry
 
-Week 3
+[Step 3](files/step3.md)
 
  - Private IP Ingress/Egress endpoints for applications. 
  - Securing AKS management API’s to datacenter IP’s 
@@ -37,5 +37,5 @@ Week 3
     - Using azure arc for centralize config management. 
  
 
-Week 4
+Step 4
 - General Monitoring.
