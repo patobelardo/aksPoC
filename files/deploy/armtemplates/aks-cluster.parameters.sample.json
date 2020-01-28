@@ -54,7 +54,7 @@
             "value": "cluster-vnet"
         },
         "existingVirtualNetworkResourceGroup": {
-            "value": ""
+            "value": "##rgName##"
         },
         "windowsPoolSubnetName": {
             "value": "aks-windows"

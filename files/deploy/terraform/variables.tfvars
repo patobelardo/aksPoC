@@ -1,0 +1,6 @@
+prefix = "pb2"
+location = "eastus"
+kubernetes_client_id = "372092b2-5e07-4090-ab2a-01262c699dfe"
+kubernetes_client_secret = "65f597ac-b744-4ac4-8947-8201d1f1f9b3"
+public_ssh_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0fSFbuNlXsteei4H/y202q0Ais7bPDNf8Mqdx3sLtsPPm7otGLN07BLGnqgI8LpXEHj8LTjSw3CZbozkILV/whKfCsgbAUXKBosG0UtZdzWRuk2gsSFWKkm4OfsdrFXcm92BQKJHGMcTef9jjSds82EpLXX27T/BzXVDVDD5lZS06EB1cCNdWOaqWWQ7dQv6j2n997byTKC+pcEjpqIVrc05A11ziRjvYa2dAMlhRbfwL4ONNCp5wdwHCJovbCl8DCOOSHVf4bJCeq7ae+JFxQWCeP7VFUDAyN0+y7vZIphCFVGsGySfOtaYEoLDl0N7rzzKJPedLnZsHFIuIYGjH"
+include_windows = true

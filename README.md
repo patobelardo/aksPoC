@@ -21,7 +21,8 @@ Features to include
 
 [Step 2](files/step2.md)
 
-  - Setting  RBAC roles with AAD (k8 roles binding with aad groups)		
+  - Setting  RBAC roles with AAD (k8 roles binding with aad groups)
+  - Dashboard Overview		
   - Network Policies for namespaces
     - Restricting access between namespaces
   - Key Store
