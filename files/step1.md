@@ -34,17 +34,17 @@ The output will show something like this
 
 ````json
 {
-  "appId": "559513bd-0c19-4c1a-87cd-851a26afd5fc",
+  "appId": "559513bd-0c19-4c1a-87cd-xxxxxxxxx",
   "displayName": "uniquename",
   "name": "http://uniquename",
-  "password": "e763725a-5eee-40e8-a466-dc88d980f415",
-  "tenant": "72f988bf-86f1-41af-91ab-2d7cd011db48"
+  "password": "e763725a-5eee-40e8-a466-yyyyyyyyy",
+  "tenant": "72f988bf-86f1-41af-91ab-xxxxxxxxxx"
 }
 ````
 
-With this information, you should sabe the appID and password(secret) that will be used as parameter in the parameters file.
+With this information, you should save the appID and password(secret) that will be used as parameter in the parameters file.
 
 
 ````powershell
-./setup.ps1 -rgName <ResourceGroupName> -location <location>
+./deploy.ps1 -rgName <ResourceGroupName> -location <location>
 ````
