@@ -42,7 +42,20 @@ The output will show something like this
 }
 ````
 
-With this information, you should save the appID and password(secret) that will be used as parameter in the parameters file.
+Keep the appID and password(secret). It will be used as parameter in the parameters file.
+
+### Parameters File
+
+- Get the sample files from [here](deploy/armtemplates/) and create a copy with the name *aks-cluster.parameters.json* and *vnet.parameters.json*
+- Change values based on your preferences. Here are some comments:
+  - Use previous saved values for aksServicePrincipalAppId and aksServicePrincipalClientSecret
+  - sshRSAPublicKey: we are using a sample rsa file for this sample, but one per environment should be created. Reference: [https://www.ssh.com/ssh/putty/windows/puttygen]
+  - aksDnsPrefix: should be unique or you will receive an error during the deployment/validation
+  - aksServiceCIDR: Address space for services inside the cluster (Cluster IPs)
+  - aksDnsServiceIP: IP Address for the DNS Service. Should be inside the ServiceCIDR 
+  - aksDockerBridgeCIDR: Docker Bridge CIDR. Internal address space for pods (not used with CNI = networkPlugin:azure)
+  - windowsPool: boolean to determine if an Windows agent pool will be included. If false: only linux agent pool will be created. 
+  - vmssMaxInstances: For autoscaling purposes
 
 
 ````powershell
