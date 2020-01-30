@@ -11,4 +11,4 @@ sed "s/##nodesRGName##/$NODESRGName/g" aks-cluster.parameters.temp.json > aks-cl
 
 az group deployment create -n aks-deploy-cluster -g $RGNAME --template-file aks-cluster.json --parameters @aks-cluster.parameters.temp1.json
 
-#rm aks-cluster.parameters.temp*.json
+rm aks-cluster.parameters.temp*.json
