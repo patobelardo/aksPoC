@@ -73,6 +73,9 @@
         },
         "vmssMaxInstances": {
             "value": 3
+        },
+        "nodesRGName": {
+            "value": "##nodesRGName##"
         }
     }
   }

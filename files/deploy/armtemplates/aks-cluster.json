@@ -249,6 +249,9 @@
         "vmssMaxInstances": {
             "defaultValue": 50,
             "type": "int"
+        },
+        "nodesRGName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -273,7 +276,6 @@
             "minCount": "[parameters('aksAgentCountLinux')]",
             "maxCount": "[parameters('vmssMaxInstances')]"
         },
-        "nodesRGName": "[concat(resourceGroup().name, '-nodes')]",
         "winPoolName": "[concat(parameters('aksClusterName'),'/wpool')]",
         "windowsProfile": {
             "adminUsername": "[parameters('adminUsernameWin')]",
@@ -290,7 +292,7 @@
                 "kubernetesVersion": "[parameters('kubernetesVersion')]",
                 "enableRBAC": "[parameters('aksEnableRBAC')]",
                 "dnsPrefix": "[parameters('aksDnsPrefix')]",
-                "nodeResourceGroup": "[variables('nodesRGName')]",
+                "nodeResourceGroup": "[parameters('nodesRGName')]",
                 "addonProfiles": {
                     "httpApplicationRouting": {
                         "enabled": false

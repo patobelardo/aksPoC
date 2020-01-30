@@ -40,3 +40,5 @@ Features to include
 
 Step 4
 - General Monitoring.
+- Azure Devops Pipelines
+- Overview of Private Cluster (https://docs.microsoft.com/en-us/azure/aks/private-clusters)
