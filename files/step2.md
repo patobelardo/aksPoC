@@ -1,6 +1,26 @@
-# AKS PoC - Step 1 - Deployment
+# AKS PoC - Step 2
 
-## Template - ARM
+
+  - Setting  RBAC roles with AAD (k8 roles binding with aad groups)
+  - Dashboard Overview		
+  - Network Policies for namespaces
+    - Restricting access between namespaces
+  - Key Store
+    - Using azure vault or hashicorp vault
+- Integrating ACR with AKS
+  - Deploying images stored in azure container registry
+
+## AAD Integration
+
+### Creation of AAD Application
+
+Follow the steps described [here](https://docs.microsoft.com/en-us/azure/aks/azure-ad-integration), until "Deploy the AKS cluster"
+
+### ARM Template changes
+
+To deploy an Azure AD integrated cluster, you need to redeploy. 
+To have this in place, we will create a copy of the aks-cluster file. In this case will be called [aks-cluster-step2.json](deploy/armtemplates/aks-cluster-step2.json)
+
 
 For this deployment, we created an 2 templates:
 - vnet.json
@@ -62,7 +82,6 @@ Keep the appID and password(secret). It will be used as parameter in the paramet
 ````powershell
 ./deploy.ps1 -rgName <ResourceGroupName> -location <location>
 ````
-> The deployment file can use vnet-existing template and parameter files, or vnet-new, depending if you need to reuse an existing vnet (and empty subnets) or not.
 
 ### Persistent Storage
 

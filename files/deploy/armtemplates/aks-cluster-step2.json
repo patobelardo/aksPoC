@@ -1,0 +1,414 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "aksServicePrincipalAppId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "appId of the service principal. Used by AKS to manage AKS related resources on Azure like vms, subnets."
+            }
+        },
+        "aksServicePrincipalClientSecret": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "password for the service principal. Used by AKS to manage Azure."
+            }
+        },
+        "linuxAdminUsername": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "User name for the Linux Virtual Machines."
+            }
+        },
+        "sshRSAPublicKey": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example 'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm'"
+            }
+        },
+        "adminUsernameWin": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The admin user name for the Windows agents."
+            }
+        },
+        "adminPasswordWin": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The admin password for the Windows agents."
+            }
+        },
+        "aksDnsPrefix": {
+            "defaultValue": "test-AKS",
+            "type": "string",
+            "metadata": {
+                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+            }
+        },
+        "aksAgentOsDiskSizeGB": {
+            "defaultValue": 40,
+            "minValue": 30,
+            "maxValue": 1023,
+            "type": "int",
+            "metadata": {
+                "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 30 to 1023."
+            }
+        },
+        "aksAgentCountLinux": {
+            "defaultValue": 2,
+            "minValue": 1,
+            "maxValue": 50,
+            "type": "int",
+            "metadata": {
+                "description": "The number of Linux agent nodes for the cluster."
+            }
+        },
+        "aksAgentCountWindows": {
+            "defaultValue": 2,
+            "minValue": 1,
+            "maxValue": 50,
+            "type": "int",
+            "metadata": {
+                "description": "The number of Windows agent nodes for the cluster."
+            }
+        },        
+        "aksAgentVMSize": {
+            "defaultValue": "Standard_D3_v2",
+            "allowedValues": [
+                "Standard_D1",
+                "Standard_D11",
+                "Standard_D11_v2",
+                "Standard_D11_v2_Promo",
+                "Standard_D12",
+                "Standard_D12_v2",
+                "Standard_D12_v2_Promo",
+                "Standard_D13",
+                "Standard_D13_v2",
+                "Standard_D13_v2_Promo",
+                "Standard_D14",
+                "Standard_D14_v2",
+                "Standard_D14_v2_Promo",
+                "Standard_D15_v2",
+                "Standard_D16_v3",
+                "Standard_D16s_v3",
+                "Standard_D1_v2",
+                "Standard_D2",
+                "Standard_D2_v2",
+                "Standard_D2_v2_Promo",
+                "Standard_D2_v3",
+                "Standard_D2s_v3",
+                "Standard_D3",
+                "Standard_D32_v3",
+                "Standard_D32s_v3",
+                "Standard_D3_v2",
+                "Standard_D3_v2_Promo",
+                "Standard_D4",
+                "Standard_D4_v2",
+                "Standard_D4_v2_Promo",
+                "Standard_D4_v3",
+                "Standard_D4s_v3",
+                "Standard_D5_v2",
+                "Standard_D5_v2_Promo",
+                "Standard_D64_v3",
+                "Standard_D64s_v3",
+                "Standard_D8_v3",
+                "Standard_D8s_v3",
+                "Standard_DS1",
+                "Standard_DS11",
+                "Standard_DS11-1_v2",
+                "Standard_DS11_v2",
+                "Standard_DS11_v2_Promo",
+                "Standard_DS12",
+                "Standard_DS12-1_v2",
+                "Standard_DS12-2_v2",
+                "Standard_DS12_v2",
+                "Standard_DS12_v2_Promo",
+                "Standard_DS13",
+                "Standard_DS13-2_v2",
+                "Standard_DS13-4_v2",
+                "Standard_DS13_v2",
+                "Standard_DS13_v2_Promo",
+                "Standard_DS14",
+                "Standard_DS14-4_v2",
+                "Standard_DS14-8_v2",
+                "Standard_DS14_v2",
+                "Standard_DS14_v2_Promo",
+                "Standard_DS15_v2",
+                "Standard_DS1_v2",
+                "Standard_DS2",
+                "Standard_DS2_v2",
+                "Standard_DS2_v2_Promo",
+                "Standard_DS3",
+                "Standard_DS3_v2",
+                "Standard_DS3_v2_Promo",
+                "Standard_DS4",
+                "Standard_DS4_v2",
+                "Standard_DS4_v2_Promo",
+                "Standard_DS5_v2",
+                "Standard_DS5_v2_Promo"
+            ],
+            "type": "string",
+            "metadata": {
+                "description": "The size of the Virtual Machine."
+            }
+        },
+        "kubernetesVersion": {
+            "defaultValue": "1.15.7",
+            "type": "string",
+            "metadata": {
+                "description": "The version of Kubernetes."
+            }
+        },
+        "aksServiceCIDR": {
+            "defaultValue": "10.112.28.96/27",
+            "type": "string",
+            "metadata": {
+                "description": "A CIDR notation IP range from which to assign service cluster IPs."
+            }
+        },
+        "aksDnsServiceIP": {
+            "defaultValue": "10.112.28.106",
+            "type": "string",
+            "metadata": {
+               "description": "Containers DNS server IP address."
+            }
+        },
+        "aksDockerBridgeCIDR": {
+            "defaultValue": "10.10.10.1/16",
+            "type": "string",
+            "metadata": {
+                "description": "A CIDR notation IP for Docker bridge."
+            }
+        },
+        "aksEnableRBAC": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable RBAC on the AKS cluster."
+            }
+        },
+        "existingVirtualNetworkName": {
+            "type": "string",
+            "defaultValue": "cluster-vnet",
+            "metadata": {
+              "description": "Name of an existing VNET that will contain this AKS deployment."
+            }
+        },
+        "existingVirtualNetworkResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+              "description": "Name of the existing VNET resource group"
+            }
+        },
+        "windowsPoolSubnetName": {
+            "type": "string",
+            "defaultValue": "aks-windows",
+            "metadata": {
+              "description": "Name of the subnet used for Windows agent pools"
+            }
+        },
+        "linuxPoolSubnetName": {
+            "type": "string",
+            "defaultValue": "aks-linux",
+            "metadata": {
+              "description": "Name of the subnet used for linux agent pools"
+            }
+        },
+        "aksClusterName": {
+            "type": "string",
+            "metadata": {
+              "description": "AKS Cluster Name"
+            }
+        },
+        "networkPlugin": {
+            "allowedValues": [
+                "azure",
+                "kubenet"
+            ],
+            "defaultValue": "azure",
+            "type": "string",
+            "metadata": {
+                "description": "Network plugin used for building Kubernetes network."
+            }
+        },
+        "windowsPool": {
+            "defaultValue": true,
+            "type": "bool"
+        },
+        "useScaleSets": {
+            "defaultValue": true,
+            "type": "bool"
+        },
+        "vmssMaxInstances": {
+            "defaultValue": 50,
+            "type": "int"
+        },
+        "nodesRGName": {
+            "type": "string"
+        },
+        "AAD_ClientAppID":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Application ID for the Client App Service Principal"
+            }
+        },
+        "AAD_ServerAppID":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Application ID for the Server App Service Principal"
+            }
+        },
+        "AAD_TenantID":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Azure AD Tenant where the cluster will reside"
+            }
+        },
+        "AAD_ServerAppSecret":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Service Principal Secret for the Client App Service Principal"
+            }
+        }
+    },
+    "variables": {
+        "aksClusterId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksClusterName'))]",
+        "linuxVnetSubnetId": "[resourceId(parameters('existingVirtualNetworkResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('existingVirtualNetworkName'),parameters('linuxPoolSubnetName'))]",
+        "windowsVnetSubnetId": "[resourceId(parameters('existingVirtualNetworkResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('existingVirtualNetworkName'),parameters('windowsPoolSubnetName'))]",
+        "agentPoolProfilesWin": {
+            "maxPods": 45,
+            "osDiskSizeGB": "[parameters('aksAgentOsDiskSizeGB')]",
+            "agentCount": "[parameters('aksAgentCountWindows')]",
+            "agentVmSize": "[parameters('aksAgentVMSize')]",
+            "osType": "Windows",
+            "vnetSubnetId": "[variables('windowsVnetSubnetId')]"
+        },
+        "agentPoolProfilesLinux": {
+            "maxPods": 45,
+            "osDiskSizeGB": "[parameters('aksAgentOsDiskSizeGB')]",
+            "agentCount": "[parameters('aksAgentCountLinux')]",
+            "agentVmSize": "[parameters('aksAgentVMSize')]",
+            "osType": "Linux",
+            "vnetSubnetId": "[variables('linuxVnetSubnetId')]",
+            "minCount": "[parameters('aksAgentCountLinux')]",
+            "maxCount": "[parameters('vmssMaxInstances')]"
+        },
+        "winPoolName": "[concat(parameters('aksClusterName'),'/wpool')]",
+        "windowsProfile": {
+            "adminUsername": "[parameters('adminUsernameWin')]",
+            "adminPassword": "[parameters('adminPasswordWin')]"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "name": "[parameters('aksClusterName')]",
+            "apiVersion": "2019-06-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "kubernetesVersion": "[parameters('kubernetesVersion')]",
+                "enableRBAC": "[parameters('aksEnableRBAC')]",
+                "dnsPrefix": "[parameters('aksDnsPrefix')]",
+                "nodeResourceGroup": "[parameters('nodesRGName')]",
+                "addonProfiles": {
+                    "httpApplicationRouting": {
+                        "enabled": false
+                    },
+                    "omsagent": {
+                        "enabled": false
+                    }
+                },
+                "aadProfile": {
+                    "clientAppID": "[parameters('AAD_ClientAppID')]",
+                    "serverAppID": "[parameters('AAD_ServerAppID')]",
+                    "tenantID": "[parameters('AAD_TenantID')]",
+                    "serverAppSecret": "[parameters('AAD_ServerAppSecret')]"
+                },
+                "agentPoolProfiles": [{
+                        "name": "agentpool",
+                        "maxPods": "[variables('agentPoolProfilesLinux').maxPods]",
+                        "osDiskSizeGB": "[variables('agentPoolProfilesLinux').osDiskSizeGB]",
+                        "count": "[variables('agentPoolProfilesLinux').agentCount]",
+                        "vmSize": "[variables('agentPoolProfilesLinux').agentVmSize]",
+                        "osType": "[variables('agentPoolProfilesLinux').osType]",
+                        "storageProfile": "ManagedDisks",
+                        "type": "[if(parameters('useScaleSets'), 'VirtualMachineScaleSets', 'AvailabilitySet')]",
+                        "vnetSubnetID": "[variables('agentPoolProfilesLinux').vnetSubnetId]",
+                        "orchestratorVersion": "[parameters('kubernetesVersion')]",
+                        "enableAutoScaling": true,
+                        "minCount": "[variables('agentPoolProfilesLinux').minCount]",
+                        "maxCount": "[variables('agentPoolProfilesLinux').maxCount]"
+                    }
+                ],
+                "linuxProfile": {
+                    "adminUsername": "[parameters('linuxAdminUsername')]",
+                    "ssh": {
+                        "publicKeys": [
+                            {
+                                "keyData": "[parameters('sshRSAPublicKey')]"
+                            }
+                        ]
+                    }
+                },
+                "windowsProfile": "[if(parameters('windowsPool'), variables('windowsProfile'), json('null'))]",
+                "servicePrincipalProfile": {
+                    "clientId": "[parameters('aksServicePrincipalAppId')]",
+                    "secret": "[parameters('aksServicePrincipalClientSecret')]"
+                },
+                "networkProfile": {
+                    "networkPlugin": "[parameters('networkPlugin')]",
+                    "serviceCidr": "[parameters('aksServiceCIDR')]",
+                    "dnsServiceIP": "[parameters('aksDnsServiceIP')]",
+                    "dockerBridgeCidr": "[parameters('aksDockerBridgeCIDR')]"
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('windowsPool'), bool('true'))]",
+            "apiVersion": "2019-06-01",
+            "type": "Microsoft.ContainerService/managedClusters/agentPools",
+            "name": "[variables('winPoolName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "agentpool",
+                "maxPods": "[variables('agentPoolProfilesWin').maxPods]",
+                "osDiskSizeGB": "[variables('agentPoolProfilesWin').osDiskSizeGB]",
+                "count": "[variables('agentPoolProfilesWin').agentCount]",
+                "vmSize": "[variables('agentPoolProfilesWin').agentVmSize]",
+                "osType": "[variables('agentPoolProfilesWin').osType]",
+                "storageProfile": "ManagedDisks",
+                "type": "VirtualMachineScaleSets",
+                "vnetSubnetID": "[variables('agentPoolProfilesWin').vnetSubnetId]",
+                "orchestratorVersion": "[parameters('kubernetesVersion')]"
+            },
+            "dependsOn": [ 
+                "[resourceId('Microsoft.ContainerService/managedClusters/', parameters('aksClusterName'))]"
+             ]
+        }
+    ],
+    "outputs": {
+        "subscriptionId": {
+            "type": "string",
+            "value": "[subscription().subscriptionId]"
+        },
+        "resourceGroupName": {
+            "type": "string",
+            "value": "[resourceGroup().name]"
+        },
+        "aksApiServerAddress": {
+            "type": "string",
+            "value": "[reference(variables('aksClusterId'), '2018-03-31').fqdn]"
+        },
+        "aksClusterName": {
+            "type": "string",
+            "value": "[parameters('aksClusterName')]"
+        }
+    } 
+}
