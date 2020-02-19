@@ -1,14 +1,15 @@
 # AKS PoC - Step 2
 
 
-  - Setting  RBAC roles with AAD (k8 roles binding with aad groups)
+  - AAD Integration - Setting  RBAC roles with AAD (k8 roles binding with aad groups)
   - Dashboard Overview		
-  - Network Policies for namespaces
-    - Restricting access between namespaces
-  - Key Store
-    - Using azure vault or hashicorp vault
-- Integrating ACR with AKS
-  - Deploying images stored in azure container registry
+  - Integrating ACR with AKS
+  - Sample App
+    - Deploying images stored in azure container registry
+  - Persistent Storage (from Step 1)
+  
+
+
 
 ## AAD Integration
 
@@ -18,74 +19,57 @@ Follow the steps described [here](https://docs.microsoft.com/en-us/azure/aks/azu
 
 ### ARM Template changes
 
-To deploy an Azure AD integrated cluster, you need to redeploy. 
-To have this in place, we will create a copy of the aks-cluster file. In this case will be called [aks-cluster-step2.json](deploy/armtemplates/aks-cluster-step2.json)
+To deploy an Azure AD integrated cluster, is needed to redeploy the current cluster. 
+To have this in place, we created a copy of the aks-cluster file. In this case will be called [aks-cluster-step2.json](deploy/armtemplates/aks-cluster-step2.json)
+
+Here are the changes to the template:
 
 
-For this deployment, we created an 2 templates:
-- vnet.json
-- aks-cluster.json
+### Parameters
 
-### [vnet.json](deploy/armtemplates/vnet.json)
-
-This template includes 2 subnets and parameters to define the address space of each, and also the subnet names
-
-### [aks-cluster.json](deploy/armtemplates/aks-cluster.json)
-
-This template includes the following characteristics (as parameters):
-
-- Linux and Windows agent pools (optional)
-- Kubenet or CNI
-- Existing VNET / Subnet parameters
-- Autoscaling
-
-## Deployment - ARM
-
-### Service Principal Creation
-
-To create a cluster, we should create a Service Principal to be used during the creation of Azure Resources, and also when some command at Kubernetes level, needs to access to Azure Resources (NSG or Load Balancer Rule, creation of VMs during autoscaling, etc).
-To create this service principal we should execute this (you can reference [this](https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal#manually-create-a-service-principal) article)
-
-````bash
-az ad sp create-for-rbac --skip-assignment --name <uniquename>
-````
-
-The output will show something like this
+Added 4 parameters
 
 ````json
-{
-  "appId": "559513bd-0c19-4c1a-87cd-xxxxxxxxx",
-  "displayName": "uniquename",
-  "name": "http://uniquename",
-  "password": "e763725a-5eee-40e8-a466-yyyyyyyyy",
-  "tenant": "72f988bf-86f1-41af-91ab-xxxxxxxxxx"
-}
+        "AAD_ClientAppID":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Application ID for the Client App Service Principal"
+            }
+        },
+        "AAD_ServerAppID":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Application ID for the Server App Service Principal"
+            }
+        },
+        "AAD_TenantID":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Azure AD Tenant where the cluster will reside"
+            }
+        },
+        "AAD_ServerAppSecret":{
+            "type":"securestring",
+            "metadata": {
+                "description": "The Service Principal Secret for the Client App Service Principal"
+            }
+        }
 ````
 
-Keep the appID and password(secret). It will be used as parameter in the parameters file.
-
-### Parameters File
-
-- Get the sample files from [here](deploy/armtemplates/) and create a copy with the name *aks-cluster.parameters.json* and *vnet.parameters.json*
-- Change values based on your preferences. Here are some comments:
-  - Use previous saved values for aksServicePrincipalAppId and aksServicePrincipalClientSecret
-  - sshRSAPublicKey: we are using a sample rsa file for this sample, but one per environment should be created. Reference: [https://www.ssh.com/ssh/putty/windows/puttygen]
-  - aksDnsPrefix: should be unique or you will receive an error during the deployment/validation
-  - aksServiceCIDR: Address space for services inside the cluster (Cluster IPs)
-  - aksDnsServiceIP: IP Address for the DNS Service. Should be inside the ServiceCIDR 
-  - aksDockerBridgeCIDR: Docker Bridge CIDR. Internal address space for pods (not used with CNI = networkPlugin:azure)
-  - windowsPool: boolean to determine if an Windows agent pool will be included. If false: only linux agent pool will be created. 
-  - vmssMaxInstances: For autoscaling purposes
-
-> For Windows Agent nodes you should enable the preview features mentioned [here](https://aka.ms/aks/previews). Add aks-preview and ContainerServices features.
-
-````powershell
-./deploy.ps1 -rgName <ResourceGroupName> -location <location>
+Added an aadProfile to the template
+````json
+        "aadProfile": {
+            "clientAppID": "[parameters('AAD_ClientAppID')]",
+            "serverAppID": "[parameters('AAD_ServerAppID')]",
+            "tenantID": "[parameters('AAD_TenantID')]",
+            "serverAppSecret": "[parameters('AAD_ServerAppSecret')]"
+        },
 ````
 
-### Persistent Storage
+After this change, the newly created cluster will have integration with Azure AD.
 
-Reference: [Persistent Storage - AKS](https://docs.microsoft.com/en-us/azure/aks/azure-disks-dynamic-pv)
+
+
 
 
 ### How to connect to the cluster
@@ -110,7 +94,7 @@ az aks install-cli
 ````
 After that, you can get credentials, to be used by kubectl
 ````bash
-az aks get-credentials -n clustername -g groupname
+az aks get-credentials -n clustername -g groupname --admin
 ````
 
 After that, you will be able to connect to your cluster and get the information as shown here:
@@ -122,30 +106,309 @@ aks-agentpool-27322822-vmss000000   Ready    agent   23m   v1.15.7
 akswpool000000                      Ready    agent   15m   v1.15.7
 ````
 
-## Template - Terraform
-
-For terraform, we created the following files:
-- [aks-cluster.tf](deploy/terraform/aks-cluster.tf)
-- [variables.tf](deploy/terraform/variables.tf)
-
-## Deployment - Terraform
-
-We can create a file with variable values (parameters). For example: variables.tfvars
-
-````terraform
-prefix = "yourprefix"
-location = "eastus"
-kubernetes_client_id = "servicePrincipalID"
-kubernetes_client_secret = "servicePrincipalSecret"
-public_ssh_key = "ssh-rsa ......."
-include_windows = true
+In case you want to provide access to particular AAD groups for read-only, others as admin, you can follow [this](https://docs.microsoft.com/en-us/azure/aks/azure-ad-rbac) guideline. Basically, you can bind a role (or clusterRole) to a user/group in Azure AD.
+Here is one example of this definition:
+````yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: local-cluster-admins
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: 6c2bc492-2d42-48b7-b5a1-da26830aa534
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: local-cluster-readers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: d7b2ac3e-1679-4b4c-a7d4-c94a1c447c66
 ````
-> include_windows will help to choose 1 Linux Agent Pool option or 1 Linux + 1 Windows agent pools
 
-Note: Other variable values can be included here.
+> These group IDs are related to the PoC environment and should be updated by the ones in your environment
+> In addition, other Roles or ClusterRoles can be created with more granular configuration. Reference [here](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
 
-For the execution, you should include the -var-file parameter:
+
+Once you do this, your access will depend on the account you used for login. Here is an example using a readonly account:
+````bash
+az aks get-credentials -g resourcegroupname -n clustername
+kubectl get pod
+To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code FLEBCQRGS to authenticate.
+````
+Once I open a browser and log with one user that is part of the cluster readers group, here are the results:
+````bash
+kubectl apply -f rbac-aad-user.yaml
+
+Error from server (Forbidden): error when retrieving current configuration of:
+Resource: "rbac.authorization.k8s.io/v1, Resource=clusterrolebindings", GroupVersionKind: "rbac.authorization.k8s.io/v1, Kind=ClusterRoleBinding"
+Name: "local-cluster-admins", Namespace: ""
+Object: &{map["apiVersion":"rbac.authorization.k8s.io/v1" "kind":"ClusterRoleBinding" "metadata":map["annotations":map["kubectl.kubernetes.io/last-applied-configuration":""] "name":"local-cluster-admins"] "roleRef":map["apiGroup":"rbac.authorization.k8s.io" "kind":"ClusterRole" "name":"cluster-admin"] "subjects":[map["apiGroup":"rbac.authorization.k8s.io" "kind":"Group" "name":"6c2bc492-2d42-48b7-b5a1-da26830aa534"]]]}
+from server for: "rbac-aad-user.yaml": clusterrolebindings.rbac.authorization.k8s.io "local-cluster-admins" is forbidden: User "patricio@pbelardo.onmicrosoft.com" cannot get resource "clusterrolebindings" in API group "rbac.authorization.k8s.io" at the cluster scope
+````
+
+## Dashboard Overview
+
+To open the kubernetes dashboard, we should execute the following command:
 
 ````bash
-terraform apply -var-file="variables.tfvars"
+az aks browse -n clustername -g resourcegroupname
+
+The behavior of this command has been altered by the following extension: aks-preview
+Merged "akspocpb" as current context in /var/folders/l9/sl910_6912q34fzdwdh1s9640000gn/T/tmpanj7n2_4
+To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code F7Y7F7SPZ to authenticate.
+Proxy running on http://127.0.0.1:8001/
+Press CTRL+C to close the tunnel...
 ````
+
+>Since we enabled RBAC, the system:serviceaccount:kube-system:kubernetes-dashboard should have permissions to view clusterRole or cluster-admin, depending the level of permissions we want to provide.
+
+[Here](config/rbac-common/rbac-dashboard-user.yaml) is one example:
+````yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dashboard-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: system:serviceaccount:kube-system:kubernetes-dashboard
+````
+
+Once we define the permissions, we can see the dashboard as expected:
+
+![](imgs/2020-02-19-12-00-25.png)
+
+## Integrating ACR with AKS
+
+For the creation of an ACR, we can execute:
+````bash
+az acr create -n containerRegistryName -g containerRegistryResourceGroup --sku basic
+````
+We can also create a template like in [this](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-container-registry/azuredeploy.json) example
+
+To integrate ACR with AKS, you can do a simple attach like explained [here](https://docs.microsoft.com/en-us/azure/aks/cluster-container-registry-integration#configure-acr-integration-for-existing-aks-clusters)
+
+````bash
+az aks update -n myAKSCluster -g myResourceGroup --attach-acr <acrName>
+````
+
+## Sample App
+
+For this PoC, we created 2 applications:
+- [frontend](sample-app/frontend)
+- [webapi](sample-app/webapi)
+
+The frontend app will communicate to the webapi. Frontend App will get information from environment variables to know where to look at the webapi, and also will get more contextual information, just to help us during our tests.
+The environment variables the frontend will look at are:
+- AppName
+- AppVersion
+- Environment
+- WebAPI
+- APPINSIGHTS_INSTRUMENTATIONKEY
+
+### Build images
+
+To build these applications in docker, you can execute
+
+````bash
+cd frontend
+docker build -t frontend .
+cd ..
+cd webapi
+docker build -t webapi .
+cd ..
+
+````
+
+#### Publish images
+
+To publish these images to the ACR already created, you can
+
+````bash
+docker tag webapi:latest acrpocpb.azurecr.io/webapi:latest
+docker tag frontend:latest acrpocpb.azurecr.io/frontend:latest
+
+docker push youracrname.azurecr.io/webapi:latest
+docker push youracrname.azurecr.io/frontend:latest
+````
+
+> Before you can push the image, you should be logged to the registry. This is done by docker login, using the information of your ACR
+![](imgs/2020-02-19-13-11-12.png)
+
+After this action, you should see the images in your ACR repositories
+![](imgs/2020-02-19-13-08-53.png)
+
+Just in case you want to import the app into your ACR directly, and since is published in a public repository, you can run the following command:
+
+````bash
+az acr import  -n <myContainerRegistry> --source docker.io/patobelardo/frontend:latest --image frontend:latest
+az acr import  -n <myContainerRegistry> --source docker.io/patobelardo/webapi:latest --image webapi:latest
+````
+
+## Deploying images stored in azure container registry
+
+With the images already located at the attached ACR repositories, you can proceed deploying the application.
+
+Here is one definition of a deployment (complete example [here](sample-app/app-deploy.yaml)):
+
+````yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-frontend-deployment
+  labels:
+    app: sample-frontend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-frontend
+  template:
+    metadata:
+      labels:
+        app: sample-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: acrpocpb.azurecr.io/frontend:latest
+        ports:
+        - containerPort: 80
+````
+
+After the deployment, you should see a svc and 2 pods at least
+````bash
+kubectl get po,svc
+
+NAME                                              READY   STATUS    RESTARTS   AGE
+pod/sample-frontend-deployment-5696668f57-2627g   1/1     Running   0          5m15s
+pod/sample-frontend-deployment-5696668f57-52nqf   1/1     Running   0          5m15s
+
+NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes        ClusterIP   10.112.28.97    <none>        443/TCP   24h
+service/sample-frontend   ClusterIP   10.112.28.107   <none>        80/TCP    3m34s
+````
+
+To verify the frontend is working, you can do a [port-forward](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
+
+````bash
+kubectl port-forward service/sample-frontend 8080:80
+````
+
+After that, you should access to the frontend
+
+![](imgs/2020-02-19-13-53-39.png)
+
+## Persistent Storage
+
+Reference: [Persistent Storage - AKS](https://docs.microsoft.com/en-us/azure/aks/azure-disks-dynamic-pv)
+
+For this PoC we are using dynamic persistent volumes using Azure [Files](https://docs.microsoft.com/en-us/azure/aks/azure-files-dynamic-pv)
+
+Following the same steps specified at the document, we create a [pvc.yaml](config/pvc.yaml) file with the required definitions.
+
+You can verify the creation with
+
+````yaml
+kubectl get pvc
+
+NAME        STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+azurefile   Bound    pvc-8c984637-9331-4550-a450-116cb2298fe7   5Gi        RWX            azurefile      34s
+````
+
+Now, to use this volume, we can modify the deployment definition, adding this
+
+```yaml
+    volumeMounts:
+    - mountPath: "/mnt/azure"
+      name: volume
+  volumes:
+    - name: volume
+      persistentVolumeClaim:
+        claimName: azurefile
+````
+
+The resultant yaml should be like this
+````yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-frontend-deployment
+  labels:
+    app: sample-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-frontend
+  template:
+    metadata:
+      labels:
+        app: sample-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: acrpocpb.azurecr.io/frontend:latest
+        env:
+        - name: WebAPI
+          value: http://sample-webapi
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: "/mnt/azure"
+          name: volume
+      volumes:
+        - name: volume
+          persistentVolumeClaim:
+            claimName: azurefile       
+````
+
+Now, if we enter to a pod, we should see a folder called /mnt/azure, that is a reference to an Azure Files resource.
+
+````bash
+kubectl get pod
+
+NAME                                         READY   STATUS    RESTARTS   AGE
+sample-frontend-deployment-58cd7c4d8-j9pdc   1/1     Running   0          46s
+sample-frontend-deployment-58cd7c4d8-tgszl   1/1     Running   0          50s
+sample-webapi-deployment-7fbc4f8d79-6lptc    1/1     Running   0          9m32s
+sample-webapi-deployment-7fbc4f8d79-djmcg    1/1     Running   0          9m32s
+
+kubectl exec -ti sample-frontend-deployment-58cd7c4d8-j9pdc bash
+
+root@sample-frontend-deployment-58cd7c4d8-j9pdc:/app# cd /mnt/azure
+root@sample-frontend-deployment-58cd7c4d8-j9pdc:/mnt/azure# ls
+root@sample-frontend-deployment-58cd7c4d8-j9pdc:/mnt/azure# echo "Hello from the container" > containerHello.txt
+root@sample-frontend-deployment-58cd7c4d8-j9pdc:/mnt/azure# exit
+exit
+
+kubectl exec -ti sample-frontend-deployment-58cd7c4d8-tgszl bash
+root@sample-frontend-deployment-58cd7c4d8-tgszl:/app# ls /mnt/azure
+
+containerHello.txt
+
+exit
+
+````
+
+From the Azure resources, we can see this
+
+![](imgs/2020-02-19-14-10-49.png)
+
+In this new storage account, there is a new share, dinamically created, where we can see the file created from the container
+
+![](imgs/2020-02-19-14-13-00.png)

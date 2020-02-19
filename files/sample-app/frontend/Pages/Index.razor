@@ -1,0 +1,55 @@
+﻿@page "/"
+@inject ILogger<Index> log
+
+@{
+    var appName = Environment.GetEnvironmentVariable("AppName");
+    var env = Environment.GetEnvironmentVariable("Environment");
+    var webapi = Environment.GetEnvironmentVariable("WebAPI");
+    var appVersion = Environment.GetEnvironmentVariable("AppVersion");
+    var ips = string.Empty;
+    foreach (System.Net.IPAddress ip in NetworkUtil.GetIPAddresses())
+    {
+        if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+        {
+            ips += ip.ToString() + ", ";
+        }
+    }
+    if (!string.IsNullOrEmpty(ips))
+        ips = ips.Substring(0, ips.Length - 2);
+}
+<h3>Sample Application - FrontEnd</h3>
+<table cellpadding="2" cellspacing="2" border="1">
+    <tr>
+        <td>Computer Name</td>
+        <td>@Environment.MachineName</td>
+    </tr>
+    <tr>
+        <td>AppName</td>
+        <td>@(appName ??= "(AppName Env Variable is empty)")</td>
+    </tr>
+    <tr>
+        <td>AppVersion</td>
+        <td>@(appVersion ??= "(AppVersion Env Variable is empty)")</td>
+    </tr>
+    <tr>
+        <td>Environment</td>
+        <td>@(env ??= "(Environment Env Variable is empty)")</td>
+    </tr>
+    <tr>
+        <td>Web API Address</td>
+        <td>@(webapi ??= "(WebAPI Env Variable is empty)")</td>
+    </tr>
+    <tr>
+        <td>IP Addresses</td>
+        <td>@ips</td>
+    </tr>
+</table>
+
+@code {
+
+    protected override  Task OnInitializedAsync()
+    {
+        log.LogInformation("Entering Index Page");
+        return Task.CompletedTask;
+    }
+}

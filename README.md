@@ -21,17 +21,19 @@ Features to include
 
 [Step 2](files/step2.md)
 
-  - Setting  RBAC roles with AAD (k8 roles binding with aad groups)
+  - AAD Integration - Setting  RBAC roles with AAD (k8 roles binding with aad groups)
   - Dashboard Overview		
-  - Network Policies for namespaces
-    - Restricting access between namespaces
-  - Key Store
-    - Using azure vault or hashicorp vault
-- Integrating ACR with AKS
-  - Deploying images stored in azure container registry
+  - Integrating ACR with AKS
+  - Sample App
+    - Deploying images stored in azure container registry
+  - Persistent Storage (from Step 1)
 
 [Step 3](files/step3.md)
 
+ - Network Policies for namespaces
+    - Restricting access between namespaces
+ - Key Store
+    - Using azure vault or hashicorp vault
  - Private IP Ingress/Egress endpoints for applications. 
  - Securing AKS management API’s to datacenter IP’s 
     - Whitelisting 

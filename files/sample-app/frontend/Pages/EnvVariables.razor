@@ -1,0 +1,11 @@
+﻿@page "/envvariables"
+<p>Environment Variables</p>
+<table cellpadding="2" cellspacing="2" border="1" style="font-size: smaller">
+    @foreach (System.Collections.DictionaryEntry v in Environment.GetEnvironmentVariables())
+    {
+        <tr>
+            <td>@v.Key</td>
+            <td>@v.Value</td>
+        </tr>
+    }
+</table>

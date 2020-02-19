@@ -3,21 +3,6 @@ resource "azurerm_resource_group" "poc" {
   location = "${var.location}"
 }
 
-/*
-resource "azurerm_route_table" "poc" {
-  name                = "${var.prefix}-routetable"
-  location            = "${azurerm_resource_group.poc.location}"
-  resource_group_name = "${azurerm_resource_group.poc.name}"
-
-  route {
-    name                   = "default"
-    address_prefix         = "10.100.0.0/14"
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = "10.10.1.1"
-  }
-}
-*/
-
 resource "azurerm_virtual_network" "poc" {
   name                = "${var.prefix}-vnet"
   location            = "${azurerm_resource_group.poc.location}"
@@ -41,12 +26,6 @@ resource "azurerm_subnet" "subnet2" {
   depends_on           = ["azurerm_virtual_network.poc"]
 }
 
-
-/*resource "azurerm_subnet_route_table_association" "poc" {
-  subnet_id      = "${azurerm_subnet.poc.id}"
-  route_table_id = "${azurerm_route_table.poc.id}"
-}
-*/
 resource "azurerm_kubernetes_cluster" "poc" {
   name                = "${var.prefix}-cluster"
   location            = "${azurerm_resource_group.poc.location}"
