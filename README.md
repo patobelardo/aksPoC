@@ -37,10 +37,11 @@ Features to include
  - Private IP Ingress/Egress endpoints for applications. 
  - Securing AKS management API’s to datacenter IP’s 
     - Whitelisting 
-    - Using azure arc for centralize config management. 
+
  
 
 Step 4
 - General Monitoring.
 - Azure Devops Pipelines
+- Using azure arc for centralize config management. (overview)
 - Overview of Private Cluster (https://docs.microsoft.com/en-us/azure/aks/private-clusters)
