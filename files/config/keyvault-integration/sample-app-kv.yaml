@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-frontend-deployment
+  labels:
+    app: sample-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-frontend
+  template:
+    metadata:
+      labels:
+        app: sample-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: acrpocpb.azurecr.io/frontend:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: testkv
+          mountPath: /kvmnt
+          readOnly: true
+      volumes:
+        - name: testkv
+          flexVolume:
+            driver: "azure/kv"
+            secretRef:
+              name: kvcreds                             # [OPTIONAL] not required if using Pod Identity
+            options:
+              keyvaultname: "pbkvcommon"              # [REQUIRED] the name of the KeyVault
+              keyvaultobjectnames: "secret1;secret2"         # [REQUIRED] list of KeyVault object names (semi-colon separated)
+              keyvaultobjecttypes: "secret;secret"               # [REQUIRED] list of KeyVault object types: secret, key, cert
+              resourcegroup: "aks-poc-test2"        # [REQUIRED for version < v0.0.14] the resource group of the KeyVault
+              subscriptionid: "260587fb-bc44-4234-8394-ade7bacb5d2b"                 # [REQUIRED for version < v0.0.14] the subscription ID of the KeyVault
+              tenantid: "716b1134-0d85-4174-add7-6d79d4626070"                    # [REQUIRED] the tenant ID of the KeyVault

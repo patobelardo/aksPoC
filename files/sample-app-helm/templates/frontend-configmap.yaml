@@ -1,0 +1,18 @@
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Values.namespace }}
+data:
+  # Configuration values can be set as key-value properties
+  WebAPI: http://sample-app-webapi
+  AppName: {{ .Values.frontend.app.name }}
+  APPINSIGHTS_INSTRUMENTATIONKEY: 7f62c256-2d92-44e2-93d7-cd267ffd61ce
+  AppVersion: "{{ .Values.frontend.image.tag }}"
+  Environment: {{ .Values.namespace }}
+  
+  # Or set as complete file contents (even JSON!)
+#  keys: | 
+#    image.public.key=771 
+#    rsa.public.key=42
+

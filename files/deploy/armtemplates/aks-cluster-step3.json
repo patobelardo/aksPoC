@@ -283,7 +283,15 @@
                 "Environment": "Dev",
                 "Project": "Tutorial"
             }
-        } 
+        } , 
+        "authorizedIPRanges": {
+            "type": "array",
+            "defaultValue":[ "0.0.0.0/32"],
+            "metadata": {
+                  "Description": "Authorized IP Ranges to access control plane API"
+            }
+      
+        }
     },
     "variables": {
         "aksClusterId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksClusterName'))]",
@@ -333,6 +341,7 @@
                         "enabled": false
                     }
                 },
+                "apiServerAuthorizedIPRanges": "[parameters('authorizedIPRanges')]",
                 "aadProfile": {
                     "clientAppID": "[parameters('AAD_ClientAppID')]",
                     "serverAppID": "[parameters('AAD_ServerAppID')]",
@@ -375,7 +384,8 @@
                     "networkPolicy": "azure",
                     "serviceCidr": "[parameters('aksServiceCIDR')]",
                     "dnsServiceIP": "[parameters('aksDnsServiceIP')]",
-                    "dockerBridgeCidr": "[parameters('aksDockerBridgeCIDR')]"
+                    "dockerBridgeCidr": "[parameters('aksDockerBridgeCIDR')]",
+                    "loadBalancerSku": "standard"
                 }
             }
         },

@@ -252,7 +252,14 @@
         },
         "nodesRGName": {
             "type": "string"
-        }
+        },
+        "resourceTags": {
+            "type": "object",
+            "defaultValue": {
+                "Environment": "Dev",
+                "Project": "Tutorial"
+            }
+        }        
     },
     "variables": {
         "aksClusterId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksClusterName'))]",
@@ -288,6 +295,7 @@
             "name": "[parameters('aksClusterName')]",
             "apiVersion": "2019-06-01",
             "location": "[resourceGroup().location]",
+            "tags": "[parameters('resourceTags')]",
             "properties": {
                 "kubernetesVersion": "[parameters('kubernetesVersion')]",
                 "enableRBAC": "[parameters('aksEnableRBAC')]",
@@ -346,6 +354,7 @@
             "type": "Microsoft.ContainerService/managedClusters/agentPools",
             "name": "[variables('winPoolName')]",
             "location": "[resourceGroup().location]",
+            "tags": "[parameters('resourceTags')]",
             "properties": {
                 "name": "agentpool",
                 "maxPods": "[variables('agentPoolProfilesWin').maxPods]",

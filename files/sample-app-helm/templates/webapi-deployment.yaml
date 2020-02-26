@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.webapi.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.webapi.app.name }}
+    helm.sh/chart: {{ include "sample-app-helm.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.webapi.app.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.webapi.app.name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.webapi.app.name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Values.webapi.name }}
+          image: "{{ .Values.webapi.image.repository }}:{{ .Values.webapi.image.tag }}"
+          imagePullPolicy: {{ .Values.webapi.image.pullPolicy }}
+#          envFrom:
+#            - configMapRef:
+#                name: {{ .Values.webapi.name }}
+#          env:
+#          - name: WebAPI
+#            value: sample-app-webapi
+          volumeMounts:
+            - name: varlog
+              mountPath: /app/Logs        
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /WeatherForecast
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /WeatherForecast
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: varlog
+        emptyDir: {}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

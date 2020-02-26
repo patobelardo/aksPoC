@@ -1,6 +1,6 @@
 VNETRGNAME=aks-poc-test2
-RGNAME=aks-poc-test
-NODESRGName=aks-poc-test-nodes
+RGNAME=aks-poc3
+NODESRGName=aks-poc3-nodes
 LOCATION=eastus
 
 az group create -n $RGNAME -l $LOCATION
