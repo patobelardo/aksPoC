@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: sample-app-ingress
+  namespace: dev
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1    
+spec:
+  rules:
+    - host: "www.sample-app.io"
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: sample-app-frontend
+              servicePort: http
