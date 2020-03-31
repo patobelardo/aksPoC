@@ -41,7 +41,7 @@ Features to include
  
 
 Step 4
-- General Monitoring.
-- Azure Devops Pipelines
-- Using azure arc for centralize config management. (overview)
+- General Monitoring Overview (demo)
+- Azure Devops Pipelines (demo)
+- Using azure arc for centralize config management. ([overview](https://azure.microsoft.com/en-us/services/azure-arc/))
 - Overview of Private Cluster (https://docs.microsoft.com/en-us/azure/aks/private-clusters)

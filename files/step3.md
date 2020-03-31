@@ -1,7 +1,6 @@
 # AKS PoC - Step 3
 
 
-
  - Network Policies for namespaces
     - Restricting access between namespaces
  - Key Store
@@ -115,6 +114,7 @@ root@sample-app-frontend-55888484d4-5bsgq:/app# curl  http://sample-app-webapi.t
 ### Install the network policy
 
 We used the [](config/network-policies/deny-from-others-dev-test.yaml) file
+
 ````bash
 kubectl apply -f deny-from-others-dev-test.yaml
 ````
@@ -147,7 +147,7 @@ pbelardo@Patricios-Mini files % k exec -ti sample-app-frontend-55888484d4-jw8ln 
 root@sample-app-frontend-55888484d4-jw8ln:/app# curl http://sample-app-webapi.test.svc.cluster.local/Weatherforecast
 
 [{"date":"2020-02-22T16:40:14.41754+00:00","temperatureC":32,"temperatureF":89,"summary":"Bracing","computerName":"sample-app-webapi-8498658dfc-v6t7j"},{"date":"2020-02-23T16:40:14.4175468+00:00","temperatureC":-3,"temperatureF":27,"summary":"Sweltering","computerName":"sample-app-webapi-8498658dfc-v6t7j"},{"date":"2020-02-24T16:40:14.4175577+00:00","temperatureC":24,"temperatureF":75,"summary":"Scorching","computerName":"sample-app-webapi-8498658dfc-v6t7j"},{"date":"2020-02-25T16:40:14.417559+00:00","temperatureC":48,"temperatureF":118,"summary":"Chilly","computerName":"sample-app-webapi-8498658dfc-v6t7j"},{"date":"2020-02-26T16:40:14.4175601+00:00","temperatureC":42,"temperatureF":107,"summary":"Mild","computerName":"sample-app-webapi-8498658dfc-v6t7j"}]````
-
+````
 
 ## Key Store - Using Azure Key Vault
 
@@ -157,7 +157,7 @@ To implement the flexvolume feature, that integrates Azure Key Vault with Kubern
 
 Now, one of the ways Key Vault integration is working is using a service principal. For this PoC this is the [approach](https://github.com/Azure/kubernetes-keyvault-flexvol#option-1-service-principal) we will follow.
 
-FOr that purpose, we need to assign permissions to the service principal to access Key Vault
+For that purpose, we need to assign permissions to the service principal to access Key Vault
 
 ````bash
 kubectl create secret generic kvcreds --from-literal clientid=<appid> --from-literal clientsecret=<secret> --type=azure/kv
@@ -172,9 +172,9 @@ az keyvault set-policy -n $KV_NAME --secret-permissions get --spn <appid>
 az keyvault set-policy -n $KV_NAME --certificate-permissions get --spn <appid>
 
 For this PoC I created 2 secrets
+````
 ![](2020-02-21-13-14-35.png)
 
-````
 After that, we can test an [example](config/keyvault-integration/sample-app-kv.yaml)
 ````bash
 kubectl apply -f sample-app-kv.yaml
@@ -196,6 +196,8 @@ value1
 
 root@sample-frontend-deployment-55b9b46fbc-r2x7j:/kvmnt#
 ````
+
+>One way to consume these files is using the AddKeyPerFile method from the [.net core configuration system](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-3.1#key-per-file-configuration-provider)
 
 ## Private IP Ingress/Egress endpoints for applications. 
 
@@ -257,10 +259,10 @@ Now the service can be accesed by private traffic (from one container or VM in t
 
 All the information related to this feature is located [here](https://docs.microsoft.com/en-us/azure/aks/api-server-authorized-ip-ranges)
 
-To allow specific rangas, we can do it from the armtemplate, adding the apiServerAuthorizedIPRanges configuration AND an standard load balancer configuration.
+To allow specific ranges, we can do it from the armtemplate, adding the apiServerAuthorizedIPRanges configuration AND an standard load balancer configuration.
 
 > This setting will create an external load balancer
 
-This information was added to the template [aks-cluster-step2.json](deploy/armtemplates/aks-cluster-step2.json)
+This information was added to the template [aks-cluster-step3.json](deploy/armtemplates/aks-cluster-step3.json)
 
 Once we defined the IP range, it will be the only cidr that can have access to the Kubernetes API for this particular cluster. 
